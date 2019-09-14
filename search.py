@@ -4,6 +4,7 @@ import json
 import pprint
 import requests
 
+
 def get_search_words(code):
     """Given a string, returns the searchable keywords as a list of strings"""
 
@@ -19,7 +20,7 @@ def get_search_words(code):
         "[",
         "{",
         "}",
-        "/",
+        "/"
 
     ]
     code = code.split()
@@ -54,11 +55,11 @@ def fetchData(search_words, results_no, language):
     for result in range(len(data["results"])):
         if result < results_no:
             vals = {}
-            
+
             link = data["results"][result]["url"]
             link = link.replace("view", "raw")
             vals["url"] = link
-            
+
             # getting the line nums
             lines = data["results"][result]["lines"]
             lineNums = []
@@ -67,7 +68,7 @@ def fetchData(search_words, results_no, language):
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
             vals["lineNums"] = lineNums
-            
+
             # getting the raw code
             r = requests.get(vals["url"])
             vals["raw"] = r.text.split("\n")
