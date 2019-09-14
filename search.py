@@ -23,14 +23,27 @@ def fetchData(search_words, results_no, language):
     r = requests.get(cmd)
     print(r.status_code)
     data = r.json()
+    print(data)
 
     for result in range(len(data["results"])):
         if result < results_no:
             vals = {}
+            
             link = data["results"][result]["url"]
             link = link.replace("view", "raw")
             vals["url"] = link
-            vals["code"] = data["results"][result]["lines"]
+            
+            # getting the line nums
+            lines = data["results"][result]["lines"]
+            lineNums = []
+            for key, val in lines.items():
+                lineNums.append(key)
+            vals["maxLine"] = max(lineNums)
+            vals["minLine"] = min(lineNums)
+            
+            # getting the raw code
+            r = requests.get("https://searchcode.com/codesearch/raw/47298605/")
+            vals["raw"] = r.text.split("\n")
             returnData.append(vals)
 
     return returnData
