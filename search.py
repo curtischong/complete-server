@@ -4,6 +4,8 @@ import json
 import pprint
 import requests
 
+def get_search_words(code):
+  return ["hello"]
 
 def fetchData(search_words, results_no, language):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
@@ -29,6 +31,6 @@ def fetchData(search_words, results_no, language):
             link = link.replace("view", "raw")
             vals["url"] = link
             vals["code"] = data["results"][result]["lines"]
-        returnData.append(vals)
+            returnData.append(vals)
 
     return returnData
