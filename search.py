@@ -40,9 +40,10 @@ def fetchData(search_words, results_no, language):
                 lineNums.append(key)
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
+            vals["lineNums"] = lineNums
             
             # getting the raw code
-            r = requests.get("https://searchcode.com/codesearch/raw/47298605/")
+            r = requests.get(vals["url"])
             vals["raw"] = r.text.split("\n")
             returnData.append(vals)
 
