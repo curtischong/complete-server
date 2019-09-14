@@ -5,7 +5,33 @@ import pprint
 import requests
 
 def get_search_words(code):
-  return ["hello"]
+    """Given a string, returns the searchable keywords as a list of strings"""
+
+    words_list = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not"
+    ]
+
+    chars_list = [
+        ":",
+        ")",
+        "(",
+        "]",
+        "[",
+        "{",
+        "}",
+        "/",
+
+    ]
+    code = code.split()
+    keywords = []
+    for word in code:
+        if word not in words_list and len(word) > 1:
+            for char in word:
+                if char in chars_list:
+                    word = word.replace(char, "")
+            keywords.append(word)
+    return keywords
+
 
 def fetchData(search_words, results_no, language):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
