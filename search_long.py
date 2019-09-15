@@ -1,3 +1,35 @@
+import requests
+import difflib
+
+
+def comapare(dict1, str2):
+    fin_res = {}
+    store = []
+    ans = []
+
+    for k, v in dict1.items():
+        res = difflib.SequenceMatcher(None, v, str2).ratio()
+        fin_res.update({v : res})
+        store.append(res)
+
+    store.sort()
+    store = store[::-1]
+    store = store[:5]
+    for i in store:
+        for k, v in fin_res.items():
+            if i == v:
+                ans.append(k)
+
+    ans = list(set(ans))
+    ans.sort()
+    ans = ans[::-1]
+    ans = ans[:5]
+
+    print(ans)
+    return ans
+
+
+
 def fetchData(search_words, results_no, language):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
     selected = []
@@ -40,3 +72,15 @@ def fetchData(search_words, results_no, language):
             returnData.append(vals)
 
     return returnData
+
+
+dict1 = {1: "Hello",
+        2: "Bye",
+        3: "Trello",
+        4: "Haha",
+        5: "Yello",
+        6: "bello"}
+
+str2 = "hello"
+
+comapare(dict1, str2)
