@@ -7,7 +7,7 @@ import keyword
 import re
 import math
 
-importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib", "os", "subprocess", "json", "flask_cors", "request", "app"]
+importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib", "os", "subprocess", "json", "flask_cors", "request", "app", "random", "np", "pd"]
 
 comment = [r'#.*', r'[;|}|{|\w]\s?#.*', r"'''([^*]|[\r\n]|(\*+([^*/]|[\r\n])))'''", r"'''[.*|\s?\r\n]", r".*\s?'''$", r"\"\"\"[.*|\s?\r\n]", r".*\s?\"\"\"$"]
 
@@ -148,7 +148,7 @@ def removeKeywords(words, isCodeSnippet):
     ]
     newWords = []
     for word in words:
-        if word.lower() not in keyWords and word not in chars_list:
+        if word.lower() not in keyWords and word not in chars_list and len(word) >= 3:
             newWords.append(word)
     if isCodeSnippet:
         for word in words:
@@ -286,5 +286,5 @@ def fetchData(search_words, results_no, language):
 # '''
 
 # output_words = get_search_words(tCode, tfCode)
-# fetchData(output_words, 4, "python")
+# fetchData(4, "python")
 # get_search_words(tCode, tfCode)
