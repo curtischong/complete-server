@@ -152,6 +152,7 @@ def fetchData(search_words, results_no, language):
     data = r.json()
     print(data)
     if data is None:
+        print("No match found :( ")
         return []
 
     for result in range(len(data["results"])):
