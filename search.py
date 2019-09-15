@@ -67,23 +67,26 @@ def fetchData(search_words, results_no, language):
     for result in range(len(data["results"])):
         if result < results_no:
             vals = {}
-
+            
             link = data["results"][result]["url"]
             link = link.replace("view", "raw")
             vals["url"] = link
-
+            
             # getting the line nums
             lines = data["results"][result]["lines"]
             lineNums = []
+            codeLines = []
             for key, val in lines.items():
                 lineNums.append(key)
+                codeLines.append(val)
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
-            vals["lineNums"] = lineNums
-
+            
             # getting the raw code
-            r = requests.get(vals["url"])
-            vals["raw"] = r.text.split("\n")
+            #r = requests.get(vals["url"])
+            vals["lineNums"] = lineNums
+            vals["codeLines"] = codeLines
+            #vals["raw"] = r.text.split("\n")
             returnData.append(vals)
 
     return returnData
