@@ -107,7 +107,7 @@ def get_search_words(code, fullCode):
             tf_idf[key] = tf[key] * idf[key]
     tf_idf = sorted(tf_idf, key=tf_idf.get)
     index = 0
-    while len(queryParameters) < 5:
+    while len(queryParameters) < 4:
         if index < len(tf_idf) and tf_idf[index].lower() not in queryParameters:
             queryParameters.append(tf_idf[index])
         if index >= len(tf_idf):
@@ -180,58 +180,3 @@ def fetchData(search_words, results_no, language):
             returnData.append(vals)
 
     return returnData
-
-
-tcode = """ 
-    import Pandas
-    import BeautifulSoup
-    
-    def console_print(self, text, color=None):
-        return console_print(self, text, color)
-
-    # stats
-    def save_user_stats(self, username, path=""): 
-        return save_user_stats(self, username, path=path)
-
-    def reached_limit(self, key):
-        current_date = datetime.datetime.now()
-        passed_days = (current_date.date() - self.start_time.date()).days
-        if passed_days > 0:
-            self.reset_counters()
-        return self.max_per_day[key] - self.total[key] <= 0
-
-    """
-
-
-fulltCode = """ 
-    import Pandas
-    import BeautifulSoup
-    
-    def console_print(self, text, color=None):
-        return console_print(self, text, color)
-
-    # stats
-    def save_user_stats(self, username, path=""): 
-        return save_user_stats(self, username, path=path)
-    
-    from .. import utils
-    from ..api import API
-    def reached_limit(self, key):
-        current_date = datetime.datetime.now()
-        passed_days = (current_date.date() - self.start_time.date()).days
-        if passed_days > 0:
-            self.reset_counters()
-        return self.max_per_day[key] - self.total[key] <= 0
-
-    def reset_counters(self):
-        for k in self.total:
-            self.total[k] = 0
-        for k in self.blocked_actions:
-            self.blocked_actions[k] = False
-        self.start_time = datetime.datetime.now()
-
-    """
-
-
-
-get_search_words(tcode, fulltCode)
