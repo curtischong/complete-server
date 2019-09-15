@@ -9,6 +9,13 @@ import keyword
 def get_search_words(code):
     """Given a string, returns the searchable keywords as a list of strings"""
 
+    """Our tool will not teach a kid how to program,
+    it will help power users be more efficient.
+    We can have a broad but innacuarte search or
+    a deep and narrow search. Deep and narrow is much better
+    Atleast, its about finding a balance. By removing these common words, I can cut through a lot of
+    false positives."""
+
     words_list = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not"
         # "and", "in", "if", "else", "continue", "break", "while",
@@ -17,6 +24,7 @@ def get_search_words(code):
         # "False", "True", "class", "global", "with"
     ]
     words_list.append(keyword.kwlist)
+
 
     chars_list = [
         ":",
@@ -28,6 +36,7 @@ def get_search_words(code):
         "}",
         "/",
     ]
+
     code = code.split()
     keywords = []
     for word in code:
@@ -36,6 +45,8 @@ def get_search_words(code):
                 if char in chars_list:
                     word = word.replace(char, "")
             keywords.append(word)
+    print("searchwords:")
+    print(keywords)
     return keywords
 
 
@@ -56,6 +67,8 @@ def fetchData(search_words, results_no, language):
     print(r.status_code)
     data = r.json()
     print(data)
+    if data is None:
+        return []
 
     for result in range(len(data["results"])):
         if result < results_no:

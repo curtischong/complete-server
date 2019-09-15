@@ -67,7 +67,15 @@ def fetchData(search_words, results_no, language, search_string):
         print(i["ratio"])
         # print(i["url"])
 
+<<<<<<< HEAD
     return returnData
 
 fetchData(["print", "r.status_code", "r.json()"], 100, "python",
           "print(r.status_code) data = r.json()")
+=======
+    return returnData[0:5]
+
+
+fetchData(["print", "r.status_code", "data", "r.json()"], 100, "python",
+          "print(r.status_code) data = r.json()")
+>>>>>>> b76f2292c3d741551e797eafb93043c9da132c26
