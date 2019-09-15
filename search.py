@@ -136,6 +136,8 @@ def removeKeywords(words, isCodeSnippet):
 
 def fetchData(search_words, results_no, language):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
+    print("search_words")
+    print(search_words)
 
     returnData = []
     lang_no = {"python": "19"}
