@@ -44,12 +44,14 @@ def scrape(search_command):
     res = set()
 
     for i in range(2, 12, 2):
-        driver.find_element_by_xpath(
+        try: 
+            driver.find_element_by_xpath(
             "(//code)[" + str(i) + "]")
-        print("reached here")
-        text = driver.find_element_by_xpath(
+            print("reached here")
+            text = driver.find_element_by_xpath(
             "(//code)[" + str(i) + "]").text
-
+        except:
+            break
         print(text)
         res.add(text)
     res = list(res)
