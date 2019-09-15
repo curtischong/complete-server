@@ -179,9 +179,9 @@ def fetchData(search_words, results_no, language):
     print(cmd)
 
     r = requests.get(cmd)
-    print(r.status_code)
+    #print(r.status_code)
     data = r.json()
-    print(data)
+    #print(data)
     if data is None:
         print("No match found :( ")
         return []
@@ -196,20 +196,24 @@ def fetchData(search_words, results_no, language):
             
             # getting the line nums
             lines = data["results"][result]["lines"]
-            moduleLines = []
-            for line in lines:
-                moduleInLine = False
-                for module in importantPackages:
-                    if module in line:
-                        moduleInLine = True
-                moduleLines.append(moduleInLine)
+            print(lines)
             lineNums = []
             codeLines = []
             for key, val in lines.items():
                 lineNums.append(key)
                 codeLines.append(val)
+
+            moduleLines = []
+            for line in codeLines:
+                moduleInLine = False
+                for module in importantPackages:
+                    if module.lower() in line.lower():
+                        moduleInLine = True
+                moduleLines.append(moduleInLine)
+
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
+            vals["moduleLines"] = moduleLines
             
             # getting the raw code
             #r = requests.get(vals["url"])
