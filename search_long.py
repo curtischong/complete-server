@@ -10,7 +10,10 @@ def sort_function(valsn):
 
 
 def fetchData(search_words, results_no, language, search_string):
-    """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
+    """search string is the raw string, the thing the user highlights. This is needed for comparison purposes. 
+    results_no  should be 100 for this
+    note that dome extra data has been added to the dictionaries that are returned like the ratios, but that shouldnt affect anything.
+    """
     selected = []
     returnData = []
     lang_no = {"python": "19"}
@@ -64,7 +67,3 @@ def fetchData(search_words, results_no, language, search_string):
     #     print(i["ratio"])
 
     return returnData
-
-
-fetchData(["print", "r.status_code", "data", "r.json()"], 100, "python",
-          "print(r.status_code) data = r.json()")
