@@ -11,20 +11,19 @@ def get_search_words(code):
 
     """Our tool will not teach a kid how to program,
     it will help power users be more efficient.
-    We can have a broad but innacuarte search or
+    We can have a broad but innacurrate search or
     a deep and narrow search. Deep and narrow is much better
     Atleast, its about finding a balance. By removing these common words, I can cut through a lot of
     false positives."""
 
     words_list = [
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not"
-        # "and", "in", "if", "else", "continue", "break", "while",
-        # "try", "except", "elif", "def", "for", "print", "return",
-        # "assert", "raise", "i", "or", "as", "pass", "import", "from",
-        # "False", "True", "class", "global", "with"
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not", "print",
+        "console", "log", "and", "in", "if", "else", "continue", "break", "while",
+        "try", "except", "elif", "def", "for", "print", "return",
+        "assert", "raise", "i", "or", "as", "pass", "import", "from",
+        "False", "True", "class", "global", "with", "#!/usr/bin/env"
     ]
-    words_list.append(keyword.kwlist)
-
+    words_list = list(set(words_list.append(keyword.kwlist)))
 
     chars_list = [
         ":",
@@ -34,7 +33,14 @@ def get_search_words(code):
         "[",
         "{",
         "}",
+        "=",
+        "+",
+        "-",
         "/",
+        "%",
+        "*",
+        ">",
+        "<"
     ]
 
     code = code.split()
