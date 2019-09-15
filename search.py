@@ -196,6 +196,13 @@ def fetchData(search_words, results_no, language):
             
             # getting the line nums
             lines = data["results"][result]["lines"]
+            moduleLines = []
+            for line in lines:
+                moduleInLine = False
+                for module in importantPackages:
+                    if module in line:
+                        moduleInLine = True
+                moduleLines.append(moduleInLine)
             lineNums = []
             codeLines = []
             for key, val in lines.items():
@@ -286,5 +293,5 @@ def fetchData(search_words, results_no, language):
 # '''
 
 # output_words = get_search_words(tCode, tfCode)
-# fetchData(4, "python")
+fetchData("test", 4, "python")
 # get_search_words(tCode, tfCode)
