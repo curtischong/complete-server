@@ -2,35 +2,14 @@ import requests
 import difflib
 
 
-def comapare(dict1, str2):
-    fin_res = {}
-    store = []
-    ans = []
-
-    for k, v in dict1.items():
-        res = difflib.SequenceMatcher(None, v, str2).ratio()
-        fin_res.update({v : res})
-        store.append(res)
-
-    store.sort()
-    store = store[::-1]
-    store = store[:5]
-    for i in store:
-        for k, v in fin_res.items():
-            if i == v:
-                ans.append(k)
-
-    ans = list(set(ans))
-    ans.sort()
-    ans = ans[::-1]
-    ans = ans[:5]
-
-    print(ans)
-    return ans
+# res = difflib.SequenceMatcher(None, v["url"], str2).ratio()
 
 
+def sort_function(valsn):
+    return valsn["ratio"]
 
-def fetchData(search_words, results_no, language):
+
+def fetchData(search_words, results_no, language, search_string):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
     selected = []
     returnData = []
@@ -46,7 +25,7 @@ def fetchData(search_words, results_no, language):
     r = requests.get(cmd)
     print(r.status_code)
     data = r.json()
-    print(data)
+    # print(data)
 
     for result in range(len(data["results"])):
         if result < results_no:
@@ -54,9 +33,14 @@ def fetchData(search_words, results_no, language):
 
             link = data["results"][result]["url"]
             link = link.replace("view", "raw")
-            vals["url"] = link
+
+            str_text = ""
+            for i in data["results"][result]["lines"].values():
+                str_text += i
+            vals["url"] = str_text
 
             # getting the line nums
+
             lines = data["results"][result]["lines"]
             lineNums = []
             vals["code"] = lines
@@ -66,21 +50,21 @@ def fetchData(search_words, results_no, language):
             vals["minLine"] = min(lineNums)
             vals["lineNums"] = lineNums
 
+            vals["ratio"] = difflib.SequenceMatcher(
+                None, vals["url"], search_string).ratio()
+
             # getting the raw code
             r = requests.get(vals["url"])
             vals["raw"] = r.text.split("\n")
             returnData.append(vals)
 
+    returnData.sort(key=sort_function)
+
+    # for i in returnData:
+    #     print(i["ratio"])
+
     return returnData
 
 
-dict1 = {1: "Hello",
-        2: "Bye",
-        3: "Trello",
-        4: "Haha",
-        5: "Yello",
-        6: "bello"}
-
-str2 = "hello"
-
-comapare(dict1, str2)
+fetchData(["print", "r.status_code", "data", "r.json()"], 100, "python",
+          "print(r.status_code) data = r.json()")
