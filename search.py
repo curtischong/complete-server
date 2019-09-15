@@ -129,7 +129,7 @@ def get_search_words(code, fullCode):
             tf_idf[key] = tf[key] * idf[key]
     tf_idf = sorted(tf_idf, key=tf_idf.get)
     index = 0
-    while len(queryParameters) < 3:
+    while len(queryParameters) < 1:
         if index < len(tf_idf) and tf_idf[index].lower() not in queryParameters:
             queryParameters.append(tf_idf[index])
         if index >= len(tf_idf):
@@ -210,7 +210,7 @@ def fetchData(search_words, results_no, language):
                 codeLines.append(val)
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
-            
+            vals["modulLines"] = modulLines
             # getting the raw code
             #r = requests.get(vals["url"])
             vals["lineNums"] = lineNums
