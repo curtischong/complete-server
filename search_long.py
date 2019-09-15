@@ -63,8 +63,9 @@ def fetchData(search_words, results_no, language, search_string):
 
     returnData.sort(key=sort_function)
 
-    # for i in returnData:
-    #     print(i["ratio"])
+    for i in returnData:
+        print(i["ratio"])
+        # print(i["url"])
 
     return returnData[0:5]
 
