@@ -57,8 +57,8 @@ def fetchData(search_words, results_no, language, search_string):
                 None, vals["url"], search_string).ratio()
 
             # getting the raw code
-            r = requests.get(vals["url"])
-            vals["raw"] = r.text.split("\n")
+            # r = requests.get(vals["url"])
+            # vals["raw"] = r.text.split("\n")
             returnData.append(vals)
 
     returnData.sort(key=sort_function)
@@ -66,4 +66,8 @@ def fetchData(search_words, results_no, language, search_string):
     # for i in returnData:
     #     print(i["ratio"])
 
-    return returnData
+    return returnData[0:5]
+
+
+fetchData(["print", "r.status_code", "data", "r.json()"], 100, "python",
+          "print(r.status_code) data = r.json()")
