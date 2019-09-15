@@ -31,6 +31,8 @@ def get_search_words(code):
                 if char in chars_list:
                     word = word.replace(char, "")
             keywords.append(word)
+    print("searchwords:")
+    print(keywords)
     return keywords
 
 
@@ -51,6 +53,8 @@ def fetchData(search_words, results_no, language):
     print(r.status_code)
     data = r.json()
     print(data)
+    if data is None:
+        return []
 
     for result in range(len(data["results"])):
         if result < results_no:

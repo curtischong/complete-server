@@ -7,6 +7,7 @@ app = Flask(__name__)
 def hello_world():
   print(request.data.decode("utf-8") )
   data = json.loads(request.data.decode("utf-8"))
+  print(data)
   search_words = get_search_words(data['code'])
   results = fetchData(search_words, data['results_num'], data['language'])
   return json.dumps(results)
