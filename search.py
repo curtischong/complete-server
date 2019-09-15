@@ -210,10 +210,12 @@ def fetchData(search_words, results_no, language):
                     if module.lower() in line.lower():
                         moduleInLine = True
                 moduleLines.append(moduleInLine)
-
-            for line in codeLines:
+            
+            for i in range(len(codeLines)):
+                line = codeLines[i]
                 for module in importantPackages:
-                    line.replace(module, "<span class="highlightedLine">"+module+'</span>';)
+                    if module.lower() in line.lower():
+                        codeLines[i] = line.replace(module, "<span class=\"highlightedLine\">"+module+"</span>")
             
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
