@@ -77,7 +77,7 @@ def get_search_words(code, fullCode):
         idf[key] = math.log(len(fullWords)/fullCodeFreq[key])
     #for code snippet
     code = code.split('\n')
-    codeWithoutComments = ""
+    tempCodeWithoutComments = []
     startFound = False
     commentFound = False
     for line in code:
@@ -89,19 +89,28 @@ def get_search_words(code, fullCode):
             if re.search(comment[3], line) or startFound: #start of a multiline comment
                 startFound = True
             if (not commentFound) and (not startFound):
-                codeWithoutComments += line
+                tempCodeWithoutComments.append(line)
             if re.search(comment[4], line): #end of a multiline comment
                 startFound = False
-    codeWithoutComments = codeWithoutComments.split()
+    codeWithoutComments = []
+    for line in tempCodeWithoutComments:
+        codeWithoutComments.extend(line.split())
+    # codeWithoutComments = codeWithoutComments.split()
     words = removeKeywords(codeWithoutComments, True)
     #check if modules used
     for module in modulesUsed:
         for word in words:
             if module in word:
                 #do regex parsing
+                reg = r'\.(?:.(?!\.))+$'
+                search = re.search(reg, word)
+                if search:
+                    reg_search = re.search(r'\.(.*)[\(\[](.*)]', search.group(0))
+                    if reg_search:
+                        if reg_search.group(1) not in queryParameters:
+                            queryParameters.append(reg_search.group(1))
                 if module not in queryParameters:
                     queryParameters.append(module)
-    
     codeFreq = {} 
     for item in words: 
         if (item in codeFreq): 
@@ -118,13 +127,13 @@ def get_search_words(code, fullCode):
             tf_idf[key] = tf[key] * idf[key]
     tf_idf = sorted(tf_idf, key=tf_idf.get)
     index = 0
-    while len(queryParameters) < 4:
+    while len(queryParameters) < 3:
         if index < len(tf_idf) and tf_idf[index].lower() not in queryParameters:
             queryParameters.append(tf_idf[index])
         if index >= len(tf_idf):
             break
         index += 1
-    print(queryParameters)
+    # print(queryParameters)
     return queryParameters
 
 def removeKeywords(words, isCodeSnippet):
@@ -154,6 +163,7 @@ def removeKeywords(words, isCodeSnippet):
 def fetchData(search_words, results_no, language):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
 
+    print(search_words)
     returnData = []
     lang_no = {"python": "19"}
 
@@ -266,9 +276,11 @@ def dismiss_panel():
 tCode = '''
     @app.route('/dismiss_panel', methods=['POST'])
 def dismiss_panel():
-  timePlaced = request.json['timePlaced'] if request.json['timePlaced'] else None
+  timePlaced = request.form['timePlaced'] if request.json['timePlaced'] else None
   if(timePlaced == None):
     return "timePlaced field not found!"
 '''
 
-get_search_words(tCode, tfCode)
+output_words = get_search_words(tCode, tfCode)
+fetchData(output_words, 4, "python")
+# get_search_words(tCode, tfCode)
