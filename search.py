@@ -7,7 +7,7 @@ import keyword
 import re
 import math
 
-importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib", "os", "subprocess", "json", "flask_cors", "request"]
+importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib", "os", "subprocess", "json", "flask_cors", "request", "app"]
 
 comment = [r'#.*', r'[;|}|{|\w]\s?#.*', r"'''([^*]|[\r\n]|(\*+([^*/]|[\r\n])))'''", r"'''[.*|\s?\r\n]", r".*\s?'''$", r"\"\"\"[.*|\s?\r\n]", r".*\s?\"\"\"$"]
 
@@ -105,9 +105,10 @@ def get_search_words(code, fullCode):
                 reg = r'\.(?:.(?!\.))+$'
                 search = re.search(reg, word)
                 if search:
-                    reg_search = re.search(r'\.(.*)[\(\[](.*)]', search.group(0))
-                    if reg_search:
+                    reg_search = re.search(r'\.(.*)[\(\[](.*)', search.group(0))
+                    if reg_search and module != reg_search.group(1):
                         function = module + '.' + reg_search.group(1)
+                        print(function, module, reg_search.group(1))
                         if function not in queryParameters:
                             queryParameters.append(function)
                 if module not in queryParameters:
@@ -134,7 +135,7 @@ def get_search_words(code, fullCode):
         if index >= len(tf_idf):
             break
         index += 1
-    # print(queryParameters)
+    print(queryParameters)
     return queryParameters
 
 def removeKeywords(words, isCodeSnippet):
@@ -166,13 +167,13 @@ def fetchData(search_words, results_no, language):
     print("search_words")
     print(search_words)
 
-    print(search_words)
     returnData = []
     lang_no = {"python": "19"}
 
     cmd = "https://searchcode.com/api/codesearch_I/?q="
     for search_word in search_words:
         cmd += search_word + "+"
+    queryParameters.clear()
     cmd = cmd[:-1]
     cmd += "&p=1&per_page=100&lan="+lang_no[language]
     print(cmd)
