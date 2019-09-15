@@ -3,6 +3,7 @@ import os
 import json
 import pprint
 import requests
+import keyword
 
 
 def get_search_words(code):
@@ -10,7 +11,12 @@ def get_search_words(code):
 
     words_list = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not"
+        # "and", "in", "if", "else", "continue", "break", "while",
+        # "try", "except", "elif", "def", "for", "print", "return",
+        # "assert", "raise", "i", "or", "as", "pass", "import", "from",
+        # "False", "True", "class", "global", "with"
     ]
+    words_list.append(keyword.kwlist)
 
     chars_list = [
         ":",
@@ -20,8 +26,7 @@ def get_search_words(code):
         "[",
         "{",
         "}",
-        "/"
-
+        "/",
     ]
     code = code.split()
     keywords = []
