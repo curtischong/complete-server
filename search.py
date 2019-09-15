@@ -4,28 +4,16 @@ import json
 import pprint
 import requests
 import keyword
+import re
+import math
 
+importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib"]
 
-def get_search_words(code):
-    """Given a string, returns the searchable keywords as a list of strings"""
+otherPackages = ["os", "subprocess", "json"]
 
-    """Our tool will not teach a kid how to program,
-    it will help power users be more efficient.
-    We can have a broad but innacurrate search or
-    a deep and narrow search. Deep and narrow is much better
-    Atleast, its about finding a balance. By removing these common words, I can cut through a lot of
-    false positives."""
+comment = [r'#.*', r'[;|}|{|\w]\s?#.*', r"'''([^*]|[\r\n]|(\*+([^*/]|[\r\n])))'''", r"'''[.*|\s?\r\n]", r".*\s?'''$", r"\"\"\"[.*|\s?\r\n]", r".*\s?\"\"\"$"]
 
-    words_list = [
-        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not", "print",
-        "console", "log", "and", "in", "if", "else", "continue", "break", "while",
-        "try", "except", "elif", "def", "for", "print", "return",
-        "assert", "raise", "i", "or", "as", "pass", "import", "from",
-        "False", "True", "class", "global", "with", "#!/usr/bin/env"
-    ]
-    words_list = list(set(words_list.append(keyword.kwlist)))
-
-    chars_list = [
+chars_list = [
         ":",
         ")",
         "(",
@@ -40,21 +28,111 @@ def get_search_words(code):
         "%",
         "*",
         ">",
-        "<"
+        "<",
+        "..",
+        "<="
     ]
 
-    code = code.split()
-    keywords = []
-    for word in code:
-        if word not in words_list and len(word) > 1:
-            for char in word:
-                if char in chars_list:
-                    word = word.replace(char, "")
-            keywords.append(word)
-    print("searchwords:")
-    print(keywords)
-    return keywords
+queryParameters = []
 
+def checkComment(line):
+    #check for comments
+    lonelyComment = comment[0]
+    if re.search(lonelyComment, line):
+        return True
+    return False
+
+
+def get_search_words(code, fullCode):
+    #for the fullCode
+    fullCode = fullCode.split('\n')
+    fullCodeWithoutComments = ""
+    startFound = False
+    commentFound = False
+    for line in fullCode:
+        if not re.match(r'^\s*$', line):
+            if checkComment(line): #start of a single line comment
+                commentFound = True
+            else: #no comment
+                commentFound = False
+            if re.search(comment[3], line) or startFound or re.search(comment[5], line): #start of a multiline comment
+                startFound = True
+            if (not commentFound) and (not startFound):
+                fullCodeWithoutComments += line
+            if re.search(comment[4], line) or re.search(comment[6], line) : #end of a multiline comment
+                startFound = False
+    fullCodeWithoutComments = fullCodeWithoutComments.split()
+    fullWords = removeKeywords(fullCodeWithoutComments, False)
+    fullCodeFreq = {} 
+    for item in fullWords: 
+        if (item in fullCodeFreq): 
+            fullCodeFreq[item] += 1
+        else: 
+            fullCodeFreq[item] = 1
+    idf = {}
+    for key in fullCodeFreq:
+        idf[key] = math.log(len(fullWords)/fullCodeFreq[key])
+    #for code snippet
+    code = code.split('\n')
+    codeWithoutComments = ""
+    startFound = False
+    commentFound = False
+    for line in code:
+        if not re.match(r'^\s*$', line):
+            if checkComment(line): #start of a single line comment
+                commentFound = True
+            else: #no comment
+                commentFound = False
+            if re.search(comment[3], line) or startFound: #start of a multiline comment
+                startFound = True
+            if (not commentFound) and (not startFound):
+                codeWithoutComments += line
+            if re.search(comment[4], line): #end of a multiline comment
+                startFound = False
+    codeWithoutComments = codeWithoutComments.split()
+    words = removeKeywords(codeWithoutComments, True)
+    codeFreq = {} 
+    for item in words: 
+        if (item in codeFreq): 
+            codeFreq[item] += 1
+        else: 
+            codeFreq[item] = 1
+    tf = {}
+    for key in codeFreq:
+        tf[key] = codeFreq[key]/len(words)
+    tf_idf = {}
+    #do the tf-idf math
+    for key in tf:
+        if key in idf:
+            tf_idf[key] = tf[key] * idf[key]
+    tf_idf = sorted(tf_idf, key=tf_idf.get)
+    index = 0
+    while len(queryParameters) < 5:
+        if index < len(tf_idf) and tf_idf[index].lower() not in queryParameters:
+            queryParameters.append(tf_idf[index])
+        if index >= len(tf_idf):
+            break
+        index += 1
+    return queryParameters
+
+def removeKeywords(words, isCodeSnippet):
+    keyWords = [
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not", "print",
+        "console", "log", "and", "in", "if", "else", "continue", "break", "while",
+        "try", "except", "elif", "def", "for", "print", "return",
+        "assert", "raise", "i", "or", "as", "pass", "import", "from",
+        "False", "True", "class", "global", "with", "#!/usr/bin/env"
+    ]
+    newWords = []
+    for word in words:
+        if word.lower() not in keyWords and word not in chars_list:
+            newWords.append(word)
+    if isCodeSnippet:
+        for word in words:
+            if word.lower() in importantPackages:
+                queryParameters.append(word.lower())  #only update when code snippet
+    return newWords
+    
 
 def fetchData(search_words, results_no, language):
     """return file of dicts with the format {url_to_raw_file:data, lines as a dict with line no being keys}"""
@@ -102,3 +180,58 @@ def fetchData(search_words, results_no, language):
             returnData.append(vals)
 
     return returnData
+
+
+tcode = """ 
+    import Pandas
+    import BeautifulSoup
+    
+    def console_print(self, text, color=None):
+        return console_print(self, text, color)
+
+    # stats
+    def save_user_stats(self, username, path=""): 
+        return save_user_stats(self, username, path=path)
+
+    def reached_limit(self, key):
+        current_date = datetime.datetime.now()
+        passed_days = (current_date.date() - self.start_time.date()).days
+        if passed_days > 0:
+            self.reset_counters()
+        return self.max_per_day[key] - self.total[key] <= 0
+
+    """
+
+
+fulltCode = """ 
+    import Pandas
+    import BeautifulSoup
+    
+    def console_print(self, text, color=None):
+        return console_print(self, text, color)
+
+    # stats
+    def save_user_stats(self, username, path=""): 
+        return save_user_stats(self, username, path=path)
+    
+    from .. import utils
+    from ..api import API
+    def reached_limit(self, key):
+        current_date = datetime.datetime.now()
+        passed_days = (current_date.date() - self.start_time.date()).days
+        if passed_days > 0:
+            self.reset_counters()
+        return self.max_per_day[key] - self.total[key] <= 0
+
+    def reset_counters(self):
+        for k in self.total:
+            self.total[k] = 0
+        for k in self.blocked_actions:
+            self.blocked_actions[k] = False
+        self.start_time = datetime.datetime.now()
+
+    """
+
+
+
+get_search_words(tcode, fulltCode)
