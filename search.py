@@ -211,6 +211,10 @@ def fetchData(search_words, results_no, language):
                         moduleInLine = True
                 moduleLines.append(moduleInLine)
 
+            for line in codeLines:
+                for module in importantPackages:
+                    line.replace(module, "<span class="highlightedLine">"+module+'</span>';)
+            
             vals["maxLine"] = max(lineNums)
             vals["minLine"] = min(lineNums)
             vals["moduleLines"] = moduleLines
