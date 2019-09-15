@@ -7,9 +7,7 @@ import keyword
 import re
 import math
 
-importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib"]
-
-otherPackages = ["os", "subprocess", "json"]
+importantPackages = [ "tensorflow", "scikit-learn", "numpy", "keras", "pytorch", "lightgbm", "eli5", "scipy", "theano", "pandas", "flask", "django", "beautifulsoup", "requests", "scrapy", "matplotlib", "os", "subprocess", "json", "flask_cors", "request"]
 
 comment = [r'#.*', r'[;|}|{|\w]\s?#.*', r"'''([^*]|[\r\n]|(\*+([^*/]|[\r\n])))'''", r"'''[.*|\s?\r\n]", r".*\s?'''$", r"\"\"\"[.*|\s?\r\n]", r".*\s?\"\"\"$"]
 
@@ -35,6 +33,8 @@ chars_list = [
 
 queryParameters = []
 
+modulesUsed = []
+
 def checkComment(line):
     #check for comments
     lonelyComment = comment[0]
@@ -46,7 +46,7 @@ def checkComment(line):
 def get_search_words(code, fullCode):
     #for the fullCode
     fullCode = fullCode.split('\n')
-    fullCodeWithoutComments = ""
+    tempFullCodeWithoutComments = []
     startFound = False
     commentFound = False
     for line in fullCode:
@@ -58,10 +58,13 @@ def get_search_words(code, fullCode):
             if re.search(comment[3], line) or startFound or re.search(comment[5], line): #start of a multiline comment
                 startFound = True
             if (not commentFound) and (not startFound):
-                fullCodeWithoutComments += line
+                tempFullCodeWithoutComments.append(line)
             if re.search(comment[4], line) or re.search(comment[6], line) : #end of a multiline comment
                 startFound = False
-    fullCodeWithoutComments = fullCodeWithoutComments.split()
+    fullCodeWithoutComments = []
+    for line in tempFullCodeWithoutComments:
+        fullCodeWithoutComments.extend(line.split())
+    # print(fullCodeWithoutComments)
     fullWords = removeKeywords(fullCodeWithoutComments, False)
     fullCodeFreq = {} 
     for item in fullWords: 
@@ -91,6 +94,14 @@ def get_search_words(code, fullCode):
                 startFound = False
     codeWithoutComments = codeWithoutComments.split()
     words = removeKeywords(codeWithoutComments, True)
+    #check if modules used
+    for module in modulesUsed:
+        for word in words:
+            if module in word:
+                #do regex parsing
+                if module not in queryParameters:
+                    queryParameters.append(module)
+    
     codeFreq = {} 
     for item in words: 
         if (item in codeFreq): 
@@ -113,6 +124,7 @@ def get_search_words(code, fullCode):
         if index >= len(tf_idf):
             break
         index += 1
+    print(queryParameters)
     return queryParameters
 
 def removeKeywords(words, isCodeSnippet):
@@ -131,6 +143,11 @@ def removeKeywords(words, isCodeSnippet):
         for word in words:
             if word.lower() in importantPackages:
                 queryParameters.append(word.lower())  #only update when code snippet
+    else:
+        for word in words:
+            if word.lower() in importantPackages:
+                modulesUsed.append(word)
+
     return newWords
     
 
@@ -181,3 +198,77 @@ def fetchData(search_words, results_no, language):
             returnData.append(vals)
 
     return returnData
+
+tfCode = '''
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/cardUpdates")
+#print(sys.path)
+
+import CardUpdates as CardUpdates
+import Eat as Eat
+import Phrase as Phrase
+import Morning as Morning
+import Break as Break
+import Eval as Eval
+import LizzieData as LizzieData
+import CongratsWordUse as CongratsWordUse
+
+import json
+
+from flask import Flask, request
+from flask_cors import CORS
+import databaseManager
+app = Flask(__name__)
+CORS(app)
+
+
+cards = []
+
+def updateCards():
+  # Cards
+  if(CardUpdates.updateEatCard()):
+    cards.append(Eat.sendEatCard())
+  if(CardUpdates.updatePhrase()):
+    cards.append(Phrase.sendPhraseCard())
+  if(CardUpdates.updateBreak()):
+    cards.append(Break.sendBreakCard())
+  if(CardUpdates.updateLizzieDataCard()):
+    cards.append(LizzieData.sendLizzieDataCard())
+  #if(CardUpdates.updateCongratsWordUseCard()):
+  #  cards.append(CongratsWordUse.sendCongratsWordUseCard())
+
+  # Panels
+  if(CardUpdates.updateMorning()):
+    cards.append(Morning.sendMorningPanel())
+  if(CardUpdates.updateEval()):
+    cards.append(Eval.sendEvalPanel())
+  if(CardUpdates.updateEval()):
+    cards.append(Eval.sendAllEvalPanel())
+
+# TODO: remove
+@app.route('/get_card', methods=['GET'])
+def get_card():
+    while(len(cards) > 0):
+      cards.pop()
+    updateCards()
+    return json.dumps(cards)
+
+
+@app.route('/dismiss_panel', methods=['POST'])
+def dismiss_panel():
+  timePlaced = request.json['timePlaced'] if request.json['timePlaced'] else None
+  if(timePlaced == None):
+    return "timePlaced field not found!"
+  databaseManager.dismissPanel(timePlaced)
+  return "dismissed panel!"
+'''
+
+tCode = '''
+    @app.route('/dismiss_panel', methods=['POST'])
+def dismiss_panel():
+  timePlaced = request.json['timePlaced'] if request.json['timePlaced'] else None
+  if(timePlaced == None):
+    return "timePlaced field not found!"
+'''
+
+get_search_words(tCode, tfCode)
