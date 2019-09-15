@@ -8,30 +8,38 @@ import requests
 def get_search_words(code):
     """Given a string, returns the searchable keywords as a list of strings"""
 
+    """Our tool will not teach a kid how to program,
+    it will help power users be more efficient.
+    We can have a broad but innacuarte search or
+    a deep and narrow search. Deep and narrow is much better
+    Atleast, its about finding a balance. By removing these common words, I can cut through a lot of
+    false positives."""
+
     words_list = [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "not"
-    ]
+
+        ]
 
     chars_list = [
         ":",
         ")",
         "(",
-        "]",
-        "[",
-        "{",
-        "}",
-        "/"
+            "]",
+            "[",
+            "{",
+            "}",
+            "/"
 
-    ]
+        ]
     code = code.split()
     keywords = []
     for word in code:
-        if word not in words_list and len(word) > 1:
-            for char in word:
-                if char in chars_list:
-                    word = word.replace(char, "")
-            keywords.append(word)
-    return keywords
+            if word not in words_list and len(word) > 1:
+                for char in word:
+                    if char in chars_list:
+                        word = word.replace(char, "")
+                keywords.append(word)
+        return keywords
 
 
 def fetchData(search_words, results_no, language):
